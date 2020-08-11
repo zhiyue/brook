@@ -1,222 +1,261 @@
 # Brook
 
-[![Build Status](https://travis-ci.org/txthinking/brook.svg?branch=master)](https://travis-ci.org/txthinking/brook) [![Go Report Card](https://goreportcard.com/badge/github.com/txthinking/brook)](https://goreportcard.com/report/github.com/txthinking/brook) [![License: GPL v3](https://img.shields.io/badge/License-GPL%20v3-blue.svg)](http://www.gnu.org/licenses/gpl-3.0) [![Wiki](https://img.shields.io/badge/docs-wiki-blue.svg)](https://github.com/txthinking/brook/wiki)
+[![Build Status](https://travis-ci.org/txthinking/brook.svg?branch=master)](https://travis-ci.org/txthinking/brook)
+[![Wiki](https://img.shields.io/badge/docs-wiki-yellow.svg)](https://github.com/txthinking/brook/wiki)
+[![Slides](https://img.shields.io/badge/Tutorial-Slides-blueviolet.svg)](https://talks.txthinking.com)
+[![Youtube](https://img.shields.io/badge/Tutorial-Youtube-red.svg)](https://www.youtube.com/channel/UC5j8-I5Y4lWo4KTa4_0Kx5A)
+[![Google Chat](https://img.shields.io/badge/Google-Chat-blue.svg)](https://docs.google.com/forms/d/e/1FAIpQLSd61-WE__WYiDee2UWjhDKNcb-A6KQW9xwzFkeYiAmQ3dpEcA/viewform)
+[![License: GPL v3](https://img.shields.io/badge/License-GPL%20v3-yellow.svg)](http://www.gnu.org/licenses/gpl-3.0)
 
 <p align="center">
-    <img style="float: right;" src="https://storage.googleapis.com/txthinking-file/_/brook_200x200.png" alt="Brook"/>
+    <img style="float:right;" src="https://storage.googleapis.com/txthinking/_/brook.png" alt="Brook"/>
 </p>
 
 ---
 
-### v20181212
+**v20200801**
 
-* Uninstall/Delete the old client on MacOS or Windows
-* On MacOS, you need to System Preferences -> Security & Privacy, click Open Anyway, when you open Brook
-* No longer support the snap package
+* Performance optimization
+* Some subcommand parameter changes
+* NAT: Symmetric (Need to upgrade both server and client)
 
 ---
 
 ### Table of Contents
 
-* [What is Brook](#what-is-brook)
-* [Download](#download)
-* [Packages](#packages)
-* [**Server**](#server)
-* [**Client (CLI)**](#client-cli)
-* [**Client (GUI)**](#client-gui)
-* [Tunnel](#tunnel)
-* [Tproxy](#tproxy)
-* [VPN](#vpn)
-* [Relay](#relay)
-* [Socks5](#socks5)
-* [Socks5 to HTTP](#socks5-to-http)
-* [Shadowsocks](#shadowsocks)
-* [Contributing](#contributing)
-* [License](#license)
+- [What is Brook](#what-is-brook)
+- [Install](#install-via-nami)
+- [**Server**](#server)
+- [**Client**](#client)
+- [Tunnel](#tunnel)
+- [DNS Server](#dns-server)
+- [Transparent Proxy](#transparent-proxy)
+- [WebSocket Server](#websocket-server)
+- [WebSocket Client](#websocket-client)
+- [Link](#link)
+- [QR](#qr)
+- [Relay](#relay)
+- [Socks5 Server](#socks5-server)
+- [Socks5 to HTTP](#socks5-to-http)
+- [PAC](#pac)
+- [How to](#how-to)
+- [Contributing](#contributing)
+- [License](#license)
 
 ## What is Brook
 
-Brook is a cross-platform proxy/vpn software.<br/>
-Brook's goal is to keep it simple, stupid and not detectable.
+Brook is a cross-platform strong encryption and not detectable proxy.<br/>
+Brook's goal is to keep it **simple**, **stupid** and **not detectable**.
 
-## Download
+### Install via [nami](https://github.com/txthinking/nami)
 
-| Download | Server/Client | OS | Arch | Remark |
-| --- | --- | --- | --- | --- |
-| [brook](https://github.com/txthinking/brook/releases/download/v20181212/brook) | Server & Client | Linux | amd64 | CLI |
-| [brook_linux_386](https://github.com/txthinking/brook/releases/download/v20181212/brook_linux_386) | Server & Client | Linux | 386 | CLI |
-| [brook_linux_arm64](https://github.com/txthinking/brook/releases/download/v20181212/brook_linux_arm64) | Server & Client | Linux | arm64 | CLI |
-| [brook_linux_arm5](https://github.com/txthinking/brook/releases/download/v20181212/brook_linux_arm5) | Server & Client | Linux | arm5 | CLI |
-| [brook_linux_arm6](https://github.com/txthinking/brook/releases/download/v20181212/brook_linux_arm6) | Server & Client | Linux | arm6 | CLI |
-| [brook_linux_arm7](https://github.com/txthinking/brook/releases/download/v20181212/brook_linux_arm7) | Server & Client | Linux | arm7 | CLI |
-| [brook_linux_mips](https://github.com/txthinking/brook/releases/download/v20181212/brook_linux_mips) | Server & Client | Linux | mips | CLI |
-| [brook_linux_mipsle](https://github.com/txthinking/brook/releases/download/v20181212/brook_linux_mipsle) | Server & Client | Linux | mipsle | CLI |
-| [brook_linux_mips64](https://github.com/txthinking/brook/releases/download/v20181212/brook_linux_mips64) | Server & Client | Linux | mips64 | CLI |
-| [brook_linux_mips64le](https://github.com/txthinking/brook/releases/download/v20181212/brook_linux_mips64le) | Server & Client | Linux | mips64le | CLI |
-| [brook_linux_ppc64](https://github.com/txthinking/brook/releases/download/v20181212/brook_linux_ppc64) | Server & Client | Linux | ppc64 | CLI |
-| [brook_linux_ppc64le](https://github.com/txthinking/brook/releases/download/v20181212/brook_linux_ppc64le) | Server & Client | Linux | ppc64le | CLI |
-| [brook_darwin_amd64](https://github.com/txthinking/brook/releases/download/v20181212/brook_darwin_amd64) | Server & Client | MacOS | amd64 | CLI |
-| [brook_windows_amd64.exe](https://github.com/txthinking/brook/releases/download/v20181212/brook_windows_amd64.exe) | Server & Client | Windows | amd64 | CLI |
-| [brook_windows_386.exe](https://github.com/txthinking/brook/releases/download/v20181212/brook_windows_386.exe) | Server & Client | Windows | 386 | CLI |
-| [Brook.dmg](https://github.com/txthinking/brook/releases/download/v20181212/Brook.dmg) | Client | MacOS | amd64 | GUI |
-| [Brook.exe](https://github.com/txthinking/brook/releases/download/v20181212/Brook.exe) | Client | Windows | amd64 | GUI |
-| [App Store](https://itunes.apple.com/us/app/brook-brook-shadowsocks-vpn-proxy/id1216002642) | Client | iOS | - | GUI |
-| [Brook.apk](https://github.com/txthinking/brook/releases/download/v20181212/Brook.apk)(No Google Play) | Client | Android | - | GUI |
-
-**See [wiki](https://github.com/txthinking/brook/wiki) for more tutorials**
-
-## Packages
-
-### ArchLinux
+install CLI using nami on Linux/BSD/macOS
 
 ```
-sudo pacman -S brook
+nami install github.com/txthinking/brook
 ```
 
-### MacOS(GUI)
+or install CLI on Archlinux
+
+```
+pacman -S brook
+```
+
+**or download CLI from [releases](https://github.com/txthinking/brook/releases)**
+
+install GUI on macOS
 
 ```
 brew cask install brook
 ```
 
+**or download GUI: [macOS](https://github.com/txthinking/brook/releases/download/v20200801/Brook.dmg), [Windows](https://github.com/txthinking/brook/releases/download/v20200801/Brook.exe), [Android](https://github.com/txthinking/brook/releases/download/v20200801/Brook.apk), [iOS](https://github.com/txthinking/brook/issues/698)**
+
+> CLI contains server and client, GUI only contains client. iOS client only supports non-China AppStore.
+
 ## Brook
 
 ```
 NAME:
-   Brook - A Cross-Platform Proxy/VPN Software
+   Brook - A cross-platform strong encryption and not detectable proxy
 
 USAGE:
    brook [global options] command [command options] [arguments...]
 
 VERSION:
-   20181212
+   20200801
 
 AUTHOR:
    Cloud <cloud@txthinking.com>
 
 COMMANDS:
-     server        Run as server mode
-     servers       Run as multiple servers mode
-     client        Run as client mode
-     tunnel        Run as tunnel mode on client-side
-     tproxy        Run as tproxy mode on client-side, transparent proxy, only works on Linux
-     vpn           Run as VPN mode on client-side
-     ssserver      Run as shadowsocks server mode, fixed method is aes-256-cfb
-     ssservers     Run as shadowsocks multiple servers mode, fixed method is aes-256-cfb
-     ssclient      Run as shadowsocks client mode, fixed method is aes-256-cfb
-     socks5        Run as raw socks5 server
-     relay         Run as relay mode
-     relays        Run as multiple relays mode
-     qr            Print brook server QR code
-     socks5tohttp  Convert socks5 to http proxy
-     systemproxy   Set system proxy with pac url, or remove, only works on MacOS/Windows
-     help, h       Shows a list of commands or help for one command
+   server        Run as brook server, both TCP and UDP
+   servers       Run as multiple brook servers
+   client        Run as brook client, both TCP and UDP, to start a socks5 proxy or a http proxy, [src <-> $ brook client <-> $ brook server <-> dst], [works with $ brook server]
+   tunnel        Run as tunnel, both TCP and UDP, this means access [listen address] is equal to [to address], [src <-> listen address <-> $ brook server <-> to address], [works with $ brook server]
+   dns           Run as DNS server, both TCP and UDP, [src <-> $ brook dns <-> $ brook server <-> dns server] or [src <-> $ brook dns <-> dns server for bypass], [works with $ brook server]
+   tproxy        Run as transparent proxy, both TCP and UDP, only works on Linux, [src <-> $ brook tproxy <-> $ brook server <-> dst], [works with $ brook server]
+   tun           tun
+   wsserver      Run as brook wsserver, both TCP and UDP, it will start a standard http(s) server and websocket server
+   wsclient      Run as brook wsclient, both TCP and UDP, to start a socks5 proxy or a http proxy, [src <-> $ brook wsclient <-> $ brook wsserver <-> dst], [works with $ brook wsserver]
+   link          Print brook link
+   qr            Print brook server QR code
+   relay         Run as standalone relay, both TCP and UDP, this means access [listen address] is equal to access [to address], [src <-> listen address <-> to address]
+   relays        Run as multiple standalone relays
+   socks5        Run as standalone standard socks5 server, both TCP and UDP
+   socks5tohttp  Convert socks5 to http proxy, [src <-> listen address(http proxy) <-> socks5 address <-> dst]
+   hijackhttps   Hijack domains and assume is TCP/TLS/443. Requesting these domains from anywhere in the system will be hijacked . [src <-> $ brook hijackhttps <-> socks5 server] or [src <-> direct]
+   pac           Run as PAC server or save PAC to file
+   howto         Print some useful tutorial resources
+   help, h       Shows a list of commands or help for one command
 
 GLOBAL OPTIONS:
-   --debug, -d               Enable debug
+   --debug, -d               Enable debug (default: false)
    --listen value, -l value  Listen address for debug (default: ":6060")
-   --help, -h                show help
-   --version, -v             print the version
+   --help, -h                show help (default: false)
+   --version, -v             print the version (default: false)
+
+COPYRIGHT:
+   https://github.com/txthinking/brook
 ```
 
 ### Server
 
 ```
 # Run as a brook server
-$ brook server -l :9999 -p password
+$ brook server -l listen_address:port -p password
+```
+
+> More parameters: $ brook server -h
+
+### Client
+
+```
+# Run as brook client, connect to brook server, start a socks5 proxy server
+$ brook client -s server_address:port -p password -l listen_address:port -i socks5_server_ip
+```
+
+> More parameters: $ brook client -h
+
+### Tunnel
+
+```
+# Run as tunnel, connect to brook server
+$ brook tunnel -s server_address:port -p password -l listen_address:port -t tunnel_to_address:port
+```
+
+> More parameters: $ brook tunnel -h
+
+### DNS Server
+
+```
+# Run as DNS server, connect to brook server
+$ brook dns -s server_address:port -p password -l listen_address:port
+```
+
+> More parameters: $ brook dns -h
+
+### Transparent Proxy
+
+See [wiki](https://github.com/txthinking/brook/wiki/How-to-run-transparent-proxy-on-Linux)
+
+### WebSocket Server
+
+```
+# Run as a brook wsserver
+$ brook wsserver -l listen_address:port -p password
 ```
 
 ```
-# Run as multiple brook servers
-$ brook servers -l ":9999 password" -l ":8888 password"
+# Run as a brook wsserver with domain, make sure your domain name has been successfully resolved, 80 and 443 are open, brook will automatically issue certificate for you
+$ brook wsserver --domain yourdomain.com -p password
 ```
 
-> If you run a public/shared server, do not forget this parameter --tcpDeadline
+> More parameters: $ brook wsserver -h
 
-### Client (CLI)
-
-```
-# Run as brook client, start a socks5 proxy socks5://127.0.0.1:1080
-$ brook client -l 127.0.0.1:1080 -i 127.0.0.1 -s server_address:port -p password
-```
+### WebSocket Client
 
 ```
-# Run as brook client, start a http(s) proxy http(s)://127.0.0.1:8080
-$ brook client -l 127.0.0.1:8080 -i 127.0.0.1 -s server_address:port -p password --http
-```
-
-### Client (GUI)
-
-See [wiki](https://github.com/txthinking/brook/wiki)
-
-#### Tunnel
-
-```
-# Run as tunnel 127.0.0.1:5 to 1.2.3.4:5
-$ brook tunnel -l 127.0.0.1:5 -t 1.2.3.4:5 -s server_address:port -p password
-```
-
-#### Tproxy (usually used on Linux router box)
-
-See [wiki](https://github.com/txthinking/brook/wiki/How-to-run-transparent-proxy-on-Linux%3F)
-
-#### VPN
-
-```
-# Run as VPN to proxy all TCP/UDP. [ROOT privileges required].
-$ sudo brook vpn -l 127.0.0.1:1080 -s server_address:port -p password
-```
-
-**See [wiki](https://github.com/txthinking/brook/wiki/How-to-run-VPN-on-Linux,-MacOS-and-Windows%3F) for more tutorials**
-
-#### Relay
-
-```
-# Run as relay to 1.2.3.4:5
-$ brook relay -l :5 -r 1.2.3.4:5
-```
-
-#### Socks5
-
-```
-# Run as a raw socks5 server 1.2.3.4:1080
-$ brook socks5 -l :1080 -i 1.2.3.4
-```
-
-#### Socks5 to HTTP
-
-```
-# Convert socks5://127.0.0.1:1080 to http(s)://127.0.0.1:8080 proxy
-$ brook socks5tohttp -l 127.0.0.1:8080 -s 127.0.0.1:1080
-```
-
-#### Shadowsocks
-
-```
-# Run as a shadowsocks server
-$ brook ssserver -l :9999 -p password
+# Run as brook wsclient, connect to brook wsserver, start a socks5 proxy server
+$ brook wsclient -s ws://wsserver_address:port -p password -l listen_address:port -i socks5_server_ip
 ```
 
 ```
-# Run as multiple shadowsocks servers
-$ brook ssservers -l ":9999 password" -l ":8888 password"
+# Run as brook wsclient, connect to brook wsserver with domain, start a http proxy
+$ brook wsclient -s wss://wsserver_domain:port -p password -l listen_address:port --http
 ```
 
-> If you run a public/shared server, do not forget this parameter --tcpDeadline
+> More parameters: $ brook wsclient -h
+
+### Link
 
 ```
-# Run as shadowsocks client, start a socks5 proxy socks5://127.0.0.1:1080
-$ brook ssclient -l 127.0.0.1:1080 -i 127.0.0.1 -s server_address:port -p password
+$ brook link -s server_address:port -p password
+$ brook link -s ws://wsserver_address:port -p password
+$ brook link -s wss://wsserver_domain:port -p password
 ```
 
+> More parameters: $ brook link -h
+
+### QR
+
 ```
-# Run as shadowsocks client, start a http(s) proxy http(s)://127.0.0.1:8080
-$ brook ssclient -l 127.0.0.1:8080 -i 127.0.0.1 -s server_address:port -p password --http
+$ brook qr -s server_address:port -p password
+$ brook qr -s ws://wsserver_address:port -p password
+$ brook qr -s wss://wsserver_domain:port -p password
 ```
 
-> Fixed method is aes-256-cfb
+> More parameters: $ brook qr -h
 
-**See [wiki](https://github.com/txthinking/brook/wiki) for more tutorials**
+### Relay
+
+```
+# Run as relay
+$ brook relay -l listen_address:port -t relay_to_address:port
+```
+
+> More parameters: $ brook relay -h
+
+### Socks5 Server
+
+```
+# Run as standard socks5 server
+$ brook socks5 -l listen_address:port -i server_ip
+```
+
+> More parameters: $ brook socks5 -h
+
+### Socks5 to http
+
+```
+# Convert socks5 proxy to http proxy
+$ brook socks5tohttp -l listen_address:port -s socks5_server_address:port
+```
+
+> More parameters: $ brook socks5tohttp -h
+
+### PAC
+
+```
+# Create PAC server
+$ brook pac -l listen_address_port
+
+# Save PAC to local file
+$ brook pac -f /path/to/file.pac
+```
+
+> More parameters: $ brook pac -h
+
+### How to
+
+Some useful tutorial resources
+
+* Brook Wiki: https://github.com/txthinking/brook/wiki
+* Brook Issues: https://github.com/txthinking/brook/issues
+* Slides: https://talks.txthinking.com
+* Youtube: https://www.youtube.com/channel/UC5j8-I5Y4lWo4KTa4_0Kx5A
+* Nami: https://github.com/txthinking/nami
+* Joker: https://github.com/txthinking/joker
 
 ## Contributing
 

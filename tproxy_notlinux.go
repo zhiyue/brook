@@ -12,19 +12,37 @@
 // You should have received a copy of the GNU General Public License
 // along with this program. If not, see <https://www.gnu.org/licenses/>.
 
+// +build !linux
+
 package brook
 
 import (
-	"github.com/txthinking/socks5"
-	"github.com/txthinking/x"
+	"errors"
 )
 
-var Dial x.Dialer = x.DefaultDial
+// Tproxy.
+type Tproxy struct {
+}
 
-var Debug bool = false
+// NewTproxy.
+func NewTproxy(addr, remote, password string, tcpTimeout, udpTimeout int) (*Tproxy, error) {
+	return nil, errors.New("Only support Linux")
+}
 
-// EnableDebug.
-func EnableDebug() {
-	socks5.Debug = true
-	Debug = true
+func (s *Tproxy) RunAutoScripts() error {
+	return nil
+}
+
+func (s *Tproxy) ClearAutoScripts() error {
+	return nil
+}
+
+// Run server.
+func (s *Tproxy) ListenAndServe() error {
+	return nil
+}
+
+// Shutdown server.
+func (s *Tproxy) Shutdown() error {
+	return nil
 }

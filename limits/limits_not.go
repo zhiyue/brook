@@ -12,19 +12,10 @@
 // You should have received a copy of the GNU General Public License
 // along with this program. If not, see <https://www.gnu.org/licenses/>.
 
-package brook
+// +build windows
 
-import (
-	"github.com/txthinking/socks5"
-	"github.com/txthinking/x"
-)
+package limits
 
-var Dial x.Dialer = x.DefaultDial
-
-var Debug bool = false
-
-// EnableDebug.
-func EnableDebug() {
-	socks5.Debug = true
-	Debug = true
+func Raise() error {
+	return nil
 }

@@ -14,17 +14,10 @@
 
 package brook
 
-import (
-	"github.com/txthinking/socks5"
-	"github.com/txthinking/x"
-)
+import "encoding/binary"
 
-var Dial x.Dialer = x.DefaultDial
-
-var Debug bool = false
-
-// EnableDebug.
-func EnableDebug() {
-	socks5.Debug = true
-	Debug = true
+func NextNonce(b []byte) {
+	i := binary.LittleEndian.Uint64(b[:8])
+	i += 1
+	binary.LittleEndian.PutUint64(b[:8], i)
 }

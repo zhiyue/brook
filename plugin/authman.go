@@ -12,19 +12,22 @@
 // You should have received a copy of the GNU General Public License
 // along with this program. If not, see <https://www.gnu.org/licenses/>.
 
-package brook
+package plugin
 
-import (
-	"github.com/txthinking/socks5"
-	"github.com/txthinking/x"
-)
+// ClientAuthman is used to provide extra authentication mechanism.
+type ClientAuthman interface {
+	// GetToken is used for client to prepare token.
+	GetToken() ([]byte, error)
+}
 
-var Dial x.Dialer = x.DefaultDial
+// ServerAuthman is used to provide extra authentication mechanism
+type ServerAuthman interface {
+	// VerifyToken is used for server to verify token.
+	VerifyToken(token []byte, network string, a byte, dst string, b []byte) (Internet, error)
+}
 
-var Debug bool = false
-
-// EnableDebug.
-func EnableDebug() {
-	socks5.Debug = true
-	Debug = true
+type Internet interface {
+	TCPEgress(int) error
+	UDPEgress(int) error
+	Close() error
 }

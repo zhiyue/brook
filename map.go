@@ -26,27 +26,38 @@ import (
 	"github.com/txthinking/socks5"
 )
 
-// Server.
-type Server struct {
-	Password     []byte
-	TCPAddr      *net.TCPAddr
-	UDPAddr      *net.UDPAddr
-	TCPListen    *net.TCPListener
-	UDPConn      *net.UDPConn
-	UDPExchanges *cache.Cache
-	TCPTimeout   int
-	UDPTimeout   int
-	RunnerGroup  *runnergroup.RunnerGroup
-	UDPSrc       *cache.Cache
+// Map.
+type Map struct {
+	TCPAddr       *net.TCPAddr
+	UDPAddr       *net.UDPAddr
+	RemoteAddress string
+	ServerTCPAddr *net.TCPAddr
+	ServerUDPAddr *net.UDPAddr
+	Password      []byte
+	TCPListen     *net.TCPListener
+	UDPConn       *net.UDPConn
+	UDPExchanges  *cache.Cache
+	TCPTimeout    int
+	UDPTimeout    int
+	RunnerGroup   *runnergroup.RunnerGroup
+	UDPSrc        *cache.Cache
 }
 
-// NewServer.
-func NewServer(addr, password string, tcpTimeout, udpTimeout int) (*Server, error) {
-	taddr, err := net.ResolveTCPAddr("tcp", addr)
+// NewMap.
+func NewMap(from, to, remote, password string, tcpTimeout, udpTimeout int) (*Map, error) {
+	taddr, err := net.ResolveTCPAddr("tcp", from)
 	if err != nil {
 		return nil, err
 	}
-	uaddr, err := net.ResolveUDPAddr("udp", addr)
+	uaddr, err := net.ResolveUDPAddr("udp", from)
+	if err != nil {
+		return nil, err
+	}
+	rtaddr, err := net.ResolveTCPAddr("tcp", remote)
+	if err != nil {
+		return nil, err
+	}
+	ruaddr, err := net.ResolveUDPAddr("udp", remote)
 	if err != nil {
 		return nil, err
 	}
@@ -55,21 +66,24 @@ func NewServer(addr, password string, tcpTimeout, udpTimeout int) (*Server, erro
 	if err := limits.Raise(); err != nil {
 		log.Println("Try to raise system limits, got", err)
 	}
-	s := &Server{
-		Password:     []byte(password),
-		TCPAddr:      taddr,
-		UDPAddr:      uaddr,
-		UDPExchanges: cs,
-		TCPTimeout:   tcpTimeout,
-		UDPTimeout:   udpTimeout,
-		RunnerGroup:  runnergroup.New(),
-		UDPSrc:       cs2,
+	s := &Map{
+		RemoteAddress: to,
+		Password:      []byte(password),
+		TCPAddr:       taddr,
+		UDPAddr:       uaddr,
+		ServerTCPAddr: rtaddr,
+		ServerUDPAddr: ruaddr,
+		UDPExchanges:  cs,
+		TCPTimeout:    tcpTimeout,
+		UDPTimeout:    udpTimeout,
+		RunnerGroup:   runnergroup.New(),
+		UDPSrc:        cs2,
 	}
 	return s, nil
 }
 
 // Run server.
-func (s *Server) ListenAndServe() error {
+func (s *Map) ListenAndServe() error {
 	s.RunnerGroup.Add(&runnergroup.Runner{
 		Start: func() error {
 			return s.RunTCPServer()
@@ -96,7 +110,7 @@ func (s *Server) ListenAndServe() error {
 }
 
 // RunTCPServer starts tcp server.
-func (s *Server) RunTCPServer() error {
+func (s *Map) RunTCPServer() error {
 	var err error
 	s.TCPListen, err = net.ListenTCP("tcp", s.TCPAddr)
 	if err != nil {
@@ -125,7 +139,7 @@ func (s *Server) RunTCPServer() error {
 }
 
 // RunUDPServer starts udp server.
-func (s *Server) RunUDPServer() error {
+func (s *Map) RunUDPServer() error {
 	var err error
 	s.UDPConn, err = net.ListenUDP("udp", s.UDPAddr)
 	if err != nil {
@@ -148,16 +162,14 @@ func (s *Server) RunUDPServer() error {
 	return nil
 }
 
+// Shutdown server.
+func (s *Map) Shutdown() error {
+	return s.RunnerGroup.Done()
+}
+
 // TCPHandle handles request.
-func (s *Server) TCPHandle(c *net.TCPConn) error {
-	ss, dst, err := NewStreamServer(s.Password, c, s.TCPTimeout)
-	if err != nil {
-		return err
-	}
-	defer ss.Clean()
-	address := socks5.ToAddress(dst[0], dst[1:len(dst)-2], dst[len(dst)-2:])
-	debug("dial tcp", address)
-	rc, err := Dial.Dial("tcp", address)
+func (s *Map) TCPHandle(c *net.TCPConn) error {
+	rc, err := Dial.Dial("tcp", s.ServerTCPAddr.String())
 	if err != nil {
 		return err
 	}
@@ -167,40 +179,41 @@ func (s *Server) TCPHandle(c *net.TCPConn) error {
 			return err
 		}
 	}
-	if err := ss.Exchange(rc); err != nil {
+	a, h, p, err := socks5.ParseAddress(s.RemoteAddress)
+	if err != nil {
+		return err
+	}
+	dst := make([]byte, 0, 1+len(h)+2)
+	dst = append(dst, a)
+	dst = append(dst, h...)
+	dst = append(dst, p...)
+	sc, err := NewStreamClient("tcp", s.Password, dst, rc, s.TCPTimeout)
+	if err != nil {
+		return err
+	}
+	defer sc.Clean()
+	if err := sc.Exchange(c); err != nil {
 		return nil
 	}
 	return nil
 }
 
 // UDPHandle handles packet.
-func (s *Server) UDPHandle(addr *net.UDPAddr, b []byte) error {
+func (s *Map) UDPHandle(addr *net.UDPAddr, b []byte) error {
 	src := addr.String()
-	dstb, d, err := PacketClientToRemote(s.Password, b)
-	if err != nil {
-		return err
-	}
-	dst := socks5.ToAddress(dstb[0], dstb[1:len(dstb)-2], dstb[len(dstb)-2:])
+	dst := s.RemoteAddress
 	any, ok := s.UDPExchanges.Get(src + dst)
 	if ok {
 		ue := any.(*UDPExchange)
-		if _, err := ue.Conn.Write(d); err != nil {
-			return err
-		}
-		return nil
+		return ue.Any.(*PacketClient).LocalToServer(ue.Dst, b, ue.Conn, s.UDPTimeout)
 	}
-
 	debug("dial udp", dst)
 	var laddr *net.UDPAddr
 	any, ok = s.UDPSrc.Get(src + dst)
 	if ok {
 		laddr = any.(*net.UDPAddr)
 	}
-	raddr, err := net.ResolveUDPAddr("udp", dst)
-	if err != nil {
-		return err
-	}
-	rc, err := Dial.DialUDP("udp", laddr, raddr)
+	rc, err := Dial.DialUDP("udp", laddr, s.ServerUDPAddr)
 	if err != nil {
 		if strings.Contains(err.Error(), "address already in use") {
 			// we dont choose lock, so ignore this error
@@ -212,26 +225,31 @@ func (s *Server) UDPHandle(addr *net.UDPAddr, b []byte) error {
 	if laddr == nil {
 		s.UDPSrc.Set(src+dst, rc.LocalAddr().(*net.UDPAddr), -1)
 	}
-	if _, err := rc.Write(d); err != nil {
+	a, h, p, err := socks5.ParseAddress(s.RemoteAddress)
+	if err != nil {
+		return err
+	}
+	dstb := make([]byte, 0, 1+len(h)+2)
+	dstb = append(dstb, a)
+	dstb = append(dstb, h...)
+	dstb = append(dstb, p...)
+	pc := NewPacketClient(s.Password)
+	defer pc.Clean()
+	if err := pc.LocalToServer(dstb, b, rc, s.UDPTimeout); err != nil {
 		return err
 	}
 	ue := &UDPExchange{
 		Conn: rc,
+		Any:  pc,
+		Dst:  dstb,
 	}
 	s.UDPExchanges.Set(src+dst, ue, -1)
 	defer s.UDPExchanges.Delete(src + dst)
-	ps := NewPacketServer(s.Password)
-	defer ps.Clean()
-	err = ps.RemoteToClient(rc, s.UDPTimeout, dstb, func(b []byte) (int, error) {
-		return s.UDPConn.WriteToUDP(b, addr)
+	err = pc.ServerToLocal(rc, s.UDPTimeout, func(dst, d []byte) (int, error) {
+		return s.UDPConn.WriteToUDP(d, addr)
 	})
 	if err != nil {
-		return err
+		return nil
 	}
 	return nil
-}
-
-// Shutdown server.
-func (s *Server) Shutdown() error {
-	return s.RunnerGroup.Done()
 }

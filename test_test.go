@@ -15,16 +15,11 @@
 package brook
 
 import (
-	"github.com/txthinking/socks5"
-	"github.com/txthinking/x"
+	"log"
+	"testing"
 )
 
-var Dial x.Dialer = x.DefaultDial
-
-var Debug bool = false
-
-// EnableDebug.
-func EnableDebug() {
-	socks5.Debug = true
-	Debug = true
+func TestTest(t *testing.T) {
+	k, n, _ := PrepareKey([]byte("111111111111111111111111111111111111111111111111"))
+	log.Println(len(k), len(n))
 }
